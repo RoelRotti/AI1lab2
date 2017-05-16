@@ -14,6 +14,8 @@
 
 int nqueens;      /* number of queens: global variable */
 int queens[MAXQ]; /* queen at (r,c) is represented by queens[r] == c */
+int neighbor[MAXQ];
+int bestNB[MAXQ];
 
 void initializeRandomGenerator() {
   /* this routine initializes the random generator. You are not
@@ -119,6 +121,53 @@ int columnOfQueen(int queen) {
 }
 
 /* returns the number of pairs of queens that are in conflict */
+int countConflictsHill(int param) {
+  int cnt = 0;
+  int queen, other;
+	switch (param) {
+		case 1:{
+			for (queen=0; queen < nqueens; queen++) {
+				for (other=queen+1; other < nqueens; other++) {
+				  if (inConflict(queen, queens[queen], other, queens[other])) {
+					cnt++;
+				  }
+				}
+			}
+		};       break;
+		case 2:{
+			for (queen=0; queen < nqueens; queen++) {
+				for (other=queen+1; other < nqueens; other++) {
+				  if (inConflict(queen, neighbor[queen], other, neighbor[other])) {
+					cnt++;
+				  }
+				}
+			}
+		};       break;
+		case 3:{
+			for (queen=0; queen < nqueens; queen++) {
+				for (other=queen+1; other < nqueens; other++) {
+				  if (inConflict(queen, bestNB[queen], other, bestNB[other])) {
+					cnt++;
+				  }
+				}
+			}
+		};       break;
+	}
+	return cnt;
+}
+
+/* evaluation function. The maximal number of queens in conflict
+ * can be 1 + 2 + 3 + 4 + .. + (nquees-1)=(nqueens-1)*nqueens/2.
+ * Since we want to do ascending local searches, the evaluation
+ * function returns (nqueens-1)*nqueens/2 - countConflicts().
+ */
+int evaluateStateHill(int param) {
+  return (nqueens-1)*nqueens/2 - countConflictsHill(param);
+}
+
+/*************************************************************/
+
+/* returns the number of pairs of queens that are in conflict */
 int countConflicts() {
   int cnt = 0;
   int queen, other;
@@ -189,45 +238,51 @@ would find the neighbor with the lowest h.
 */
 
 void hillClimbing() {
-  int neighbor[nqueens];
-  int bestNB[nqueens];
-
-  int currentbest = evaluateState(queens[]);
-  int better;
-
-  do {
-    /* the highest neighbor is chosen */
-    for(int i = 0; i < nqueens; i++){
-      /* clone the current state into neighbor every time we change rows */
-      neighbor[] = queens[];
-      /* generate a queen on all columns */
-      for(int j = 0; j < nqueens; j++){
-          neighbor[i] = j;
-          better = evaluateState(neighbor[]);
-          /* the found neigbor is better than the last best */
-          if(better < currentbest){
-            bestNB[] = neigbor[];
-            best = better;
-          }
-          /* the found neighbor is equal to the last best */
-          if(better = best){
-            bestNB[] = Chooserandom state;
-          }
-      }
-    }
-    /*compare the neigbor with the current best state (queens) */
-    if(evaluateState(bestNB) >= evaluateState(queens)){
-      return queens;
-    } else {
-      /* the best neighbor is better than the last current state */
-      queens[] = bestNB[];
-    }
-  } while (evaluateState != optimum);  
-
-
-  
-
-  
+	int currentBest = evaluateStateHill(1), best = currentBest;
+	int better = 0, queen, column, x, iter=0;
+	do {
+		printf("iteration %d: evaluation=%d\n", iter++, evaluateStateHill(1));
+		for(queen = 0; queen < nqueens; queen++){							/* clone the current state into neighbor every time we change rows */
+			for (x=0; x < nqueens; x++){ 									/* copying current best board position */
+				neighbor[x] = queens[x];						
+				currentBest = best;
+			}
+			for(column = 0; column < nqueens; column++){
+				neighbor[queen] = column;
+				better = evaluateStateHill(2);
+				if(better == currentBest){ /* found neighbor is equally good to the currentBest best --> if random value > 5, then copy neighbor to bestNB */
+					if ((0+random() % (10-0))>=5){ 
+						for (x=0; x < nqueens; x++){
+							bestNB[x] = neighbor[x];
+						}
+					}
+				} else if(better < currentBest){						/* the found neigbor is better than the last best */
+					for (x=0; x < nqueens; x++){
+						bestNB[x] = neighbor[x];
+					}
+					currentBest = better;
+				}				
+			}
+		}
+		if (currentBest == best){
+			for (x=0; x < nqueens; x++){
+				queens[x] = bestNB[x];
+			}
+			break;
+		}
+		if (currentBest < best){
+			for (x=0; x < nqueens; x++){
+				queens[x] = bestNB[x];
+			}
+			best = currentBest;
+			/*if (best == 0){
+				break;
+			}*/
+		} 
+	} while (best != 0);  
+	printf("Final evaluation=%d\n", evaluateStateHill(1));
+	printf ("Final state is");
+	printState();
 }
 
 /*************************************************************/
