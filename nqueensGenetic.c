@@ -901,14 +901,14 @@ void printStateGenetic(int best){
 
 void geneticAlgorithm(){
 	int optimum = (nqueens-1)*nqueens/2;
-	int ctr=10000, i, j, x, y, best = evaluateStateGenetic();
+	int ctr=50000, i, j, x, y, best = evaluateStateGenetic();
 	while (optimum != best && ctr > 0){
 		ctr--; /* a maximum of 10000 iterations */
 		for (i=0; i < k; i++){ /* for the number of k=8 children */
 			x = randomSelection();
 			y = randomSelectionSecond(x);
 			generateChild(i, x, y);
-			if ((rand() % 1) > 0.85){ /* determines whether a child gets mutated */
+			if ((rand() % 1) > 0.8){ /* determines whether a child gets mutated */
 				 for (j=0; j < (1+rand()%(3-1)); j++){ /* determines the number of mutations in the string */
 					 mutateChild(i);
 				 }
