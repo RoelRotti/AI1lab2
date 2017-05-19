@@ -28,6 +28,7 @@ int queens5[MAXQ], child5[MAXQ];
 int queens6[MAXQ], child6[MAXQ];
 int queens7[MAXQ], child7[MAXQ];
 int queens8[MAXQ], child8[MAXQ];
+int temporary1[MAXQ], temporary2[MAXQ];
 
 
 void initializeRandomGenerator() {
@@ -435,6 +436,68 @@ void simulatedAnnealing() {
 /*************************************************************/
 /*********************Genetic Algorithm***********************/
 
+int determineSimilarity (int p1, int p2){
+	int i, ctr=0;
+	switch (p1){ /* copying first array containing parent 1 into temporary 1 (to shorten code) */
+		case 1: for (i=0; i < nqueens; i++){
+					temporary1[i] = queens1[2];
+				};	break;
+		case 2: for (i=0; i < nqueens; i++){
+					temporary1[i] = queens2[2];
+				};	break;
+		case 3: for (i=0; i < nqueens; i++){
+					temporary1[i] = queens3[2];
+				};	break;
+		case 4: for (i=0; i < nqueens; i++){
+					temporary1[i] = queens4[2];
+				};	break;	
+		case 5: for (i=0; i < nqueens; i++){
+					temporary1[i] = queens5[2];
+				};	break;
+		case 6: for (i=0; i < nqueens; i++){
+					temporary1[i] = queens6[2];
+				};	break;
+		case 7: for (i=0; i < nqueens; i++){
+					temporary1[i] = queens7[2];
+				};	break;
+		case 8: for (i=0; i < nqueens; i++){
+					temporary1[i] = queens8[2];
+				};	break;
+	}
+	switch (p2){ /* copying array containing parent 2 into temporary 2 (to shorten code) */
+		case 1: for (i=0; i < nqueens; i++){
+					temporary2[i] = queens1[2];
+				};	break;
+		case 2: for (i=0; i < nqueens; i++){
+					temporary2[i] = queens2[2];
+				};	break;
+		case 3: for (i=0; i < nqueens; i++){
+					temporary2[i] = queens3[2];
+				};	break;
+		case 4: for (i=0; i < nqueens; i++){
+					temporary2[i] = queens4[2];
+				};	break;	
+		case 5: for (i=0; i < nqueens; i++){
+					temporary2[i] = queens5[2];
+				};	break;
+		case 6: for (i=0; i < nqueens; i++){
+					temporary2[i] = queens6[2];
+				};	break;
+		case 7: for (i=0; i < nqueens; i++){
+					temporary2[i] = queens7[2];
+				};	break;
+		case 8: for (i=0; i < nqueens; i++){
+					temporary2[i] = queens8[2];
+				};	break;
+	}
+	for (i=0; i < nqueens; i++){ /* counting matches between both potential parents */
+			if (temporary1[i] == temporary2[i]){
+				ctr++;
+			}
+	}
+	return ctr;
+}
+
 void generateChild(int chi, int p1, int p2){
 	initializeRandomGenerator();
 	int cut = rand()%(nqueens-1), j;
@@ -667,14 +730,14 @@ void mutateChild (int chi){
 
 double fitnessFunction (int parent){
 	switch (parent){
-		case 1: return val1*(rand()%(5)/10); /* random value from 0 to 0.5 -> directly saying "rand()%(0.5) not possible, hence rand(up to 5)/10 */
-		case 2: return val2*(rand()%(5)/10);
-		case 3: return val3*(rand()%(5)/10);
-		case 4: return val4*(rand()%(5)/10);
-		case 5: return val5*(rand()%(5)/10);
-		case 6: return val6*(rand()%(5)/10);
-		case 7: return val7*(rand()%(5)/10);
-		case 8: return val8*(rand()%(5)/10);
+		case 1: return val1*3*(rand()%(3)); /* random value from 0 to 0.5 -> directly saying "rand()%(0.5) not possible, hence rand(up to 5)/10 */
+		case 2: return val2*3*(rand()%(3));
+		case 3: return val3*3*(rand()%(3));
+		case 4: return val4*3*(rand()%(3));
+		case 5: return val5*3*(rand()%(3));
+		case 6: return val6*3*(rand()%(3));
+		case 7: return val7*3*(rand()%(3));
+		case 8: return val8*3*(rand()%(3));
 	}
 	return 0; /* not necessary; to satisfy compiler */
 }
@@ -714,6 +777,64 @@ int randomSelection(){
 		best = fitness;
 	}
 	fitness = fitnessFunction(8);
+	if (fitness > best){
+		parent = 8;
+		best = fitness;
+	}
+	return parent;
+}
+
+double fitnessFunctionSecond (int p1, int p2){
+	initializeRandomGenerator();
+	switch (p2){
+		case 1: return (val1*2+determineSimilarity(p1, p2)*2)*(rand()%(4)); /* random value from 0 to 0.5 -> directly saying "rand()%(0.5) not possible, hence rand(up to 5)/10 */
+		case 2: return (val2*2+determineSimilarity(p1, p2)*2)*(rand()%(4));
+		case 3: return (val3*2+determineSimilarity(p1, p2)*2)*(rand()%(4)); /* evaluation of state (second parent) has already been done and is stored in valX */
+		case 4: return (val4*2+determineSimilarity(p1, p2)*2)*(rand()%(4));
+		case 5: return (val5*2+determineSimilarity(p1, p2)*2)*(rand()%(4));
+		case 6: return (val6*2+determineSimilarity(p1, p2)*2)*(rand()%(4));
+		case 7: return (val7*2+determineSimilarity(p1, p2)*2)*(rand()%(4));
+		case 8: return (val8*2+determineSimilarity(p1, p2)*2)*(rand()%(4));
+	}
+	return 0; /* not necessary; to satisfy compiler */
+}
+
+
+int randomSelectionSecond (int p2){
+	initializeRandomGenerator();
+	int parent = 1;
+	double fitness = fitnessFunctionSecond(p2, 1), best = fitness;
+	fitness = fitnessFunctionSecond(p2, 2); /* fitnessFunction returns already the [evaluation value of the parents]*[random value] */
+	if (fitness > best){
+		parent = 2;
+		best = fitness;
+	}
+	fitness = fitnessFunctionSecond(p2, 3);
+	if (fitness > best){
+		parent = 3;
+		best = fitness;
+	}
+	fitness = fitnessFunctionSecond(p2, 4);
+	if (fitness > best){
+		parent = 4;
+		best = fitness;
+	}
+	fitness = fitnessFunctionSecond(p2, 5);
+	if (fitness > best){
+		parent = 5;
+		best = fitness;
+	}
+	fitness = fitnessFunctionSecond(p2, 6);
+	if (fitness > best){
+		parent = 6;
+		best = fitness;
+	}
+	fitness = fitnessFunctionSecond(p2, 7);
+	if (fitness > best){
+		parent = 7;
+		best = fitness;
+	}
+	fitness = fitnessFunctionSecond(p2, 8);
 	if (fitness > best){
 		parent = 8;
 		best = fitness;
@@ -767,16 +888,17 @@ void printStateGenetic(int best){
 	printState();
 }
 
+
 void geneticAlgorithm(){
 	int optimum = (nqueens-1)*nqueens/2;
 	int ctr=10000, i, j, x, y, best = evaluateStateGenetic();
 	while (optimum != best && ctr > 0){
-		ctr--;
-		for (i=0; i < k; i++){
+		ctr--; /* a maximum of 10000 iterations */
+		for (i=0; i < k; i++){ /* for the number of k=8 children */
 			x = randomSelection();
-			y = randomSelection();
+			y = randomSelectionSecond(x);
 			generateChild(i, x, y);
-			if ((rand() % 1) > 0.95){ /* determines whether a child gets mutated */
+			if ((rand() % 1) > 0.85){ /* determines whether a child gets mutated */
 				 for (j=0; j < (1+rand()%(3-1)); j++){ /* determines the number of mutations in the string */
 					 mutateChild(i);
 				 }
@@ -792,7 +914,7 @@ void geneticAlgorithm(){
 			queens7[i] = child7[i];
 			queens8[i] = child8[i];
 		}
-		best = evaluateStateGenetic();
+		best = evaluateStateGenetic(); /* evaluates all new parents and saves results in the global variables valX */
 	}
 	printf("final evaluation: %d\n", best);
 	printf ("Final state is");
