@@ -490,7 +490,7 @@ int determineSimilarity (int p1, int p2){
 					temporary2[i] = queens8[2];
 				};	break;
 	}
-	for (i=0; i < nqueens; i++){ /* counting matches between both potential parents */
+	for (i=0; i < nqueens; i++){ /* counting matches (equal column numbers) between both potential parents */
 			if (temporary1[i] == temporary2[i]){
 				ctr++;
 			}
@@ -730,14 +730,14 @@ void mutateChild (int chi){
 
 double fitnessFunction (int parent){
 	switch (parent){
-		case 1: return val1*3*(rand()%(3)); /* random value from 0 to 0.5 -> directly saying "rand()%(0.5) not possible, hence rand(up to 5)/10 */
-		case 2: return val2*3*(rand()%(3));
-		case 3: return val3*3*(rand()%(3));
-		case 4: return val4*3*(rand()%(3));
-		case 5: return val5*3*(rand()%(3));
-		case 6: return val6*3*(rand()%(3));
-		case 7: return val7*3*(rand()%(3));
-		case 8: return val8*3*(rand()%(3));
+		case 1: return val1*3+(rand()%(3));
+		case 2: return val2*3+(rand()%(3));
+		case 3: return val3*3+(rand()%(3));
+		case 4: return val4*3+(rand()%(3));
+		case 5: return val5*3+(rand()%(3));
+		case 6: return val6*3+(rand()%(3));
+		case 7: return val7*3+(rand()%(3));
+		case 8: return val8*3+(rand()%(3));
 	}
 	return 0; /* not necessary; to satisfy compiler */
 }
@@ -787,54 +787,64 @@ int randomSelection(){
 double fitnessFunctionSecond (int p1, int p2){
 	initializeRandomGenerator();
 	switch (p2){
-		case 1: return (val1*2+determineSimilarity(p1, p2)*2)*(rand()%(4)); /* random value from 0 to 0.5 -> directly saying "rand()%(0.5) not possible, hence rand(up to 5)/10 */
-		case 2: return (val2*2+determineSimilarity(p1, p2)*2)*(rand()%(4));
-		case 3: return (val3*2+determineSimilarity(p1, p2)*2)*(rand()%(4)); /* evaluation of state (second parent) has already been done and is stored in valX */
-		case 4: return (val4*2+determineSimilarity(p1, p2)*2)*(rand()%(4));
-		case 5: return (val5*2+determineSimilarity(p1, p2)*2)*(rand()%(4));
-		case 6: return (val6*2+determineSimilarity(p1, p2)*2)*(rand()%(4));
-		case 7: return (val7*2+determineSimilarity(p1, p2)*2)*(rand()%(4));
-		case 8: return (val8*2+determineSimilarity(p1, p2)*2)*(rand()%(4));
+		case 1: return (val1*2+determineSimilarity(p1, 1)*2)+(rand()%(2));
+		case 2: return (val2*2+determineSimilarity(p1, 2)*2)+(rand()%(2));
+		case 3: return (val3*2+determineSimilarity(p1, 3)*2)+(rand()%(2)); /* evaluation of state (second parent) has already been done and is stored in valX */
+		case 4: return (val4*2+determineSimilarity(p1, 4)*2)+(rand()%(2));
+		case 5: return (val5*2+determineSimilarity(p1, 5)*2)+(rand()%(2));
+		case 6: return (val6*2+determineSimilarity(p1, 6)*2)+(rand()%(2));
+		case 7: return (val7*2+determineSimilarity(p1, 7)*2)+(rand()%(2));
+		case 8: return (val8*2+determineSimilarity(p1, 8)*2)+(rand()%(2));
 	}
 	return 0; /* not necessary; to satisfy compiler */
 }
 
 
-int randomSelectionSecond (int p2){
+int randomSelectionSecond (int p1){
+	/* Parent 1 has already been determined. Now, this function searches
+	 * for the second parent: It works as follows: Which parent gets the
+	 * best fitness value, gets selcted as the second parent. The fitness
+	 * is determined as follows: First, we add the [evaluation value of 
+	 * a state] times [factor 2], the [similiarity between parent one and the
+	 * different candidates] for being parent2 times [factor 2], and a 
+	 * random value between 0 and 4. That sum of the quality of a state 
+	 * ((evaluation + similiarity)*2) and some randomness is the base for
+	 * selecting parent 2.  
+	 */
 	initializeRandomGenerator();
 	int parent = 1;
-	double fitness = fitnessFunctionSecond(p2, 1), best = fitness;
-	fitness = fitnessFunctionSecond(p2, 2); /* fitnessFunction returns already the [evaluation value of the parents]*[random value] */
+	double fitness = fitnessFunctionSecond(p1, 1), best = fitness;
+	fitness = fitnessFunctionSecond(p1, 2); /* fitnessFunction returns already the [evaluation value of the parents]*[random value] */
 	if (fitness > best){
 		parent = 2;
 		best = fitness;
 	}
-	fitness = fitnessFunctionSecond(p2, 3);
+	fitness = fitnessFunctionSecond(p1, 3);
 	if (fitness > best){
 		parent = 3;
 		best = fitness;
 	}
-	fitness = fitnessFunctionSecond(p2, 4);
+	fitness = fitnessFunctionSecond(p1, 4);
 	if (fitness > best){
 		parent = 4;
 		best = fitness;
 	}
-	fitness = fitnessFunctionSecond(p2, 5);
+	fitness = fitnessFunctionSecond(p1, 5);
 	if (fitness > best){
 		parent = 5;
 		best = fitness;
 	}
-	fitness = fitnessFunctionSecond(p2, 6);
+	fitness = fitnessFunctionSecond(p1, 6);
 	if (fitness > best){
 		parent = 6;
 		best = fitness;
 	}
-	fitness = fitnessFunctionSecond(p2, 7);
+	fitness = fitnessFunctionSecond(p1, 7);
 	if (fitness > best){
 		parent = 7;
 		best = fitness;
 	}
-	fitness = fitnessFunctionSecond(p2, 8);
+	fitness = fitnessFunctionSecond(p1, 8);
 	if (fitness > best){
 		parent = 8;
 		best = fitness;
